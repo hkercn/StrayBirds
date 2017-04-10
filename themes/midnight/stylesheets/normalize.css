@@ -245,7 +245,7 @@ ul {
   margin: 1em 0;
 }
 
-ul #post-list{
+ul.post-list{
    font-size: 1.5em;
 }
 
