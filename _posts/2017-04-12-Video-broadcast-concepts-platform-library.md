@@ -35,7 +35,7 @@ comments: false
 
 ## 国内外视频云解决方案的选择注意点
 
-1. App的用户市场
+####1. App的用户市场
 
   也即目标收众用户所在的国家区域。
 
@@ -43,20 +43,20 @@ comments: false
 
   但如果是国外，那么就要综合考虑目标视频云平台在国外服务器节点是否满足需要了，是否可以开放对接国外CDN，特定国家用户推拉流时是否链路的他国的服务器节点等等。
 
-2. 平台的文档和客服
+####2. 平台的文档和客服
 
   需要详细考量平台提供的文档是否细致全面，演示demo所覆盖的产品功能是否全面；平台技术支持对问题的跟进效率；
 
-3. 产品质量考量
+####3. 产品质量考量
 
   这一点是经过上述两点调研后，需要技术上深入一点考量的地方。
   比如经过如上两点考量后我司的App最终排除了阿里/百度的视频云解决方案，而采取了腾讯云，但是经过一段时间的开发迭代后发现，国外部分国家用户经常会反映直播卡顿的问题。幸好TXSDK推拉流端对基本的网络状态/推拉流质量反馈机制做的还比较到位，结合推拉流端TXSDK的反馈机制，技术上增加了推拉流质量判断上报服务器的逻辑，最终排查出部分卡顿现象是出于部分主播于户外网络条件欠佳的环境下导致的推流端卡顿延迟，从而导致了全局拉流端卡顿延迟的问题。
 
-### 第三方的开源库调研
+## 第三方的开源库调研
 
 如若有较强研发能力的团队，那么可以考虑自行实现一套可用可定制的解决方案，否则还是参考下开源的解决方案吧，毕竟时间不会等人。在调研考量的时候，也是需要结合自身产品的用户群分步、服务器现阶段的技术实现状态，详细测试来得出比较靠谱的方案的。
 
-拉流方案
+#### 拉流方案
 
 * [ijkplayer](https://github.com/Bilibili/ijkplayer)  推荐
 
@@ -87,7 +87,7 @@ comments: false
   Support https and rtsp
   
   
-推流方案
+#### 推流方案
 
 * [yasea](https://github.com/begeekmyfriend/yasea)  推荐
 
@@ -110,7 +110,7 @@ comments: false
   
 * [rtmp-rtsp-stream-client-java](https://github.com/pedroSG94/rtmp-rtsp-stream-client-java)
 
-美颜
+#### 美颜
 
 * [android-gpuimage](https://github.com/CyberAgent/android-gpuimage)
   
@@ -120,7 +120,7 @@ comments: false
   
   An SDK app, developed for API 18 (Android 4.3)
   
-开源SDK
+#### 开源SDK
 
 * [FREYA-STREAM-CASTER-SDK-FOR-ANDROID](https://github.com/jkkj93/FREYA-STREAM-CASTER-SDK-FOR-ANDROID) 推荐
   ANDROID 4.0.3及以上
