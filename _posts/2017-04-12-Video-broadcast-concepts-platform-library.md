@@ -84,7 +84,7 @@ comments: false
 
 * [JieCaoVideoPlayer](https://github.com/lipangit/JieCaoVideoPlayer)
 
-  Support https and rtsp
+   Support https and rtsp
   
   
 #### 推流方案
@@ -92,20 +92,20 @@ comments: false
 * [yasea](https://github.com/begeekmyfriend/yasea)  推荐
 
   最低支持android API 16.
-	H.264/AAC hard encoding./H.264 soft encoding.
+  H.264/AAC hard encoding./H.264 soft encoding.
   
 * [librestreaming](https://github.com/lakeinchina/librestreaming)
 
   Support Android 4.3 and higher (Android 6.0/7.0-preview tested)
   
-	Filters support soft mode (CPU processing) and hard mode (GPU/OpenGLES rendering)[支持两种滤镜模式：使用cpu的软模式和使用gpu(opengles)的硬模式]
+  Filters support soft mode (CPU processing) and hard mode (GPU/OpenGLES rendering)[支持两种滤镜模式：使用cpu的软模式和使用gpu(opengles)的硬模式]
 
 * [OpenLiveAndroidPusher](https://github.com/devillee/OpenLiveAndroidPusher) 
 
   使用 Mediacodec 硬编码 H.264以及AAC 音视频，通过simplertmp推到 rtmp server
-	采用opengl 硬编码码流获取方式
-	将yasea项目中有关rtmp的部分单独玻璃封装，方便扩展
-	platform: API 15及以上	
+  采用opengl 硬编码码流获取方式
+  将yasea项目中有关rtmp的部分单独玻璃封装，方便扩展
+  platform: API 15及以上	
   硬编码
   
 * [rtmp-rtsp-stream-client-java](https://github.com/pedroSG94/rtmp-rtsp-stream-client-java)
