@@ -11,6 +11,7 @@
  - 魏海涛/男/1990 
  - 本科/中南林业科技大学/软件工程专业 
  - 工作年限：3年
+ - 英语：CET-4
  - 技术博客: https://hkercn.github.io/blog/ 
  - GitHub: https://github.com/hkercn
  - 意向：Android中级程序员/税前月薪10-11k/广州
