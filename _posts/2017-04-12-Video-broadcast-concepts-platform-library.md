@@ -10,7 +10,7 @@ comments: false
 <br/>
 对于视频直播相关的基础知识点，其实是可以从一些国内视频云解决方案平台的帮助文档或者相关博文中学到不少东西的。这里列出部分引用做参考:
 
-1. 直播基础概念-来自腾讯云直播平台的帮助文档[https://www.qcloud.com/document/product/454/7937]
+1. [直播基础概念-来自腾讯云直播平台的帮助文档](https://www.qcloud.com/document/product/454/7937)
 
 2. 来自UCloud的直播技术细节博文分享
 
