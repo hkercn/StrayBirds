@@ -19,6 +19,6 @@ comments: false
 
 首先，从App启动加载so文件-->进入直播间-->播放音视频-->退出直播间，播放结束。简要的流程图如下
 
-![pcstream.png](https://github.com/hkercn/blog/blob/gh-pages/images/pcstream.png)
+![pcstream.png](https://hkercn.github.io/blog/images/pcstream.png)
 
 由于视频流数据的解码、界面绘制同音频数据的解码播放这两个业务流程是独立进行的，因此我们这里也分开分别进行讨论总结。
