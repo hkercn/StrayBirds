@@ -9,7 +9,7 @@ comments: false
 
 关于mina2的基础理论知识，推荐waylau童鞋翻译的![Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
 
-## 应用总结 ## 
+## 应用总结 ##
 
 ### 客户端基本配置 ###
 
@@ -184,10 +184,12 @@ private void defaultResp(byte moduleId,int msgCode,Long resultCode,String result
 }
 
 ```
+
 TlvCodecUtil为写数据到服务器/从服务器接受数据的过程中，需要的数据编解码工具类。YayaService.tlvStore2是一个管理类，
 其内部map类型的字段typeMetaCache，用来存储所有业务逻辑需要的协议消息对象。
 
 在App启动之初，Application中会启动并初始化服务YayaService，而YayaService的职责，就是初始化tlvStore并紧接着注册所有需要的event。
+
 ```java
 
 public class YayaService extends Service {
@@ -282,11 +284,11 @@ TlvUtil类则是Tlv协议的基础操作工具类，包含了对Tlv协议的初�
 
 ### Tlv通信协议 ###
 
-1. 什么是Tlv协议?
+####1. 什么是Tlv协议?####
 
-  ![自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
+    ![自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
 
-  ![类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
+    ![类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
 
-  ![TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
+    ![TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
 
