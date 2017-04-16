@@ -284,11 +284,21 @@ TlvUtil类则是Tlv协议的基础操作工具类，包含了对Tlv协议的初�
 
 ### Tlv通信协议 ###
 
-####1. 什么是Tlv协议?####
+#### 1. 什么是Tlv协议? ####
 
-    ![自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
+   ![自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
 
-    ![类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
+   ![类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
 
-    ![TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
+   ![TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
+   
+   
+#### 2. 自实现Tlv协议综述 ####
+
+"协议一般由一个或多个消息组成，简单的来说，消息就像是一个Table，由表头(消息的字段定义，包括名称与数据类型)与行(字段值)组成"
+
+协议的超类Tlvable是一个空实现的接口，消息对象TlvSignal和消息头TlvAccessHeader实现自Tlvable。
+
+
+
 
