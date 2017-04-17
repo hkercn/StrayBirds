@@ -8,13 +8,15 @@ comments: false
 
 ## 基础知识 ##
 
-![Android 属性动画 源码解析 深入了解其内部实现](http://blog.csdn.net/lmj623565791/article/details/42056859)
+[Android 属性动画 源码解析 深入了解其内部实现](http://blog.csdn.net/lmj623565791/article/details/42056859)
 
-![Android 属性动画（Property Animation）完全解析（上）](http://blog.csdn.net/lmj623565791/article/details/38067475)
+[Android 属性动画（Property Animation）完全解析（上）](http://blog.csdn.net/lmj623565791/article/details/38067475)
 
-![Android 属性动画（Property Animation） 完全解析 （下）](http://blog.csdn.net/lmj623565791/article/details/38092093)
+[Android 属性动画（Property Animation） 完全解析 （下）](http://blog.csdn.net/lmj623565791/article/details/38092093)
 
-<Java并发编程:核心方法与框架 (高洪岩)>
+《Java并发编程:核心方法与框架 (高洪岩)》
+
+[LinkedBlockingQueue的双锁](http://blog.csdn.net/lmj623565791/article/details/42056859)
 
 ## 动画需求的分析和实现 ##
 
