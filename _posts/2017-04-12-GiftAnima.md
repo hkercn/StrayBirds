@@ -92,7 +92,7 @@ comments: false
     
   ```
   
-  LinkedBlockingQueue可以提供无界阻塞队列的功能，其offer/poll方法分别向队列写入/读取数据，如果队列为空，那么poll执行时将进入阻塞状态，直到LinkedBlockingQueue的数据不为空位置。
+  LinkedBlockingQueue可以提供无界阻塞队列的功能，其offer/poll方法分别向队列写入/读取数据，其中poll为非阻塞算法，如果队列为空，立即返回或等待一会再返回，通过返回的UserGiveGiftNotify，标记本次出队操作是否成功。
   
   客户端同前后端通过基于MINA2的网络框架进行数据通信，在接收到服务器推送的UserGiveGiftNotify后，会将该nofity写入LinkedBlockingQueue。
   
