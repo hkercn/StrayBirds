@@ -40,4 +40,70 @@ comments: false
   
   ```
   
+  同时定义一个单线程线程池，来达到队列执行线程任务目的。
   
+  ```java
+  
+  ExecutorService gifNotifyQueueService = Executors.newSingleThreadExecutor
+  
+  ```
+  
+  在RevGifQueue的构造函数中，开启单线程任务队列的执行。
+  
+  ```java
+  
+  private RevGifQueue() {
+     Log.i(TAG, "RevGifQueue");
+     giftNotifyQueue = new LinkedBlockingQueue<UserGiveGiftNotify>();
+     gifNotifyQueueService.execute(new GetGifDataRunnable());
+  }
+  
+  
+  class GetGifDataRunnable implements Runnable {
+        @Override
+        public void run() {
+
+            while (isStart) {
+                try {
+                    if (giftNotifyQueue != null && giftNotifyQueue.size() == 0) {
+                        SystemClock.sleep(5);
+                        continue;
+                    } else {
+                        if (giftNotifyQueue != null) {
+                            // 每隔50毫秒在队列取一个礼物
+                            SystemClock.sleep(50);
+                            UserGiveGiftNotify gifNotify = giftNotifyQueue.poll(1,TimeUnit.MILLISECONDS);
+                            if (null != gifNotify) {
+                                UserGiveGiftNotifyEvent notify = new UserGiveGiftNotifyEvent();
+                                notify.setNotify(gifNotify);
+                                EventBus.getDefault().post(notify);
+                            }
+                            continue;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+  ```
+  
+  LinkedBlockingQueue可以提供无界阻塞队列的功能，其offer/poll方法分别向队列写入/读取数据，如果队列为空，那么poll执行时将进入阻塞状态，直到LinkedBlockingQueue的数据不为空位置。
+  
+  客户端同前后端通过基于MINA2的网络框架进行数据通信，在接收到服务器推送的UserGiveGiftNotify后，会将该nofity写入LinkedBlockingQueue。
+  
+  ```java
+  
+  //将LinkedBlockingQueue设置为有界
+  if (giftNotifyQueue.size() <= QUEUE_MAX_SIZE) {
+      giftNotifyQueue.offer(giftNotify);
+  }
+  
+  ```
+  
+  GetGifDataRunnable线程每隔50毫秒poll一次giftNotifyQueue，当有数据可取时，通过EventBus全局post一个UserGiveGiftNotifyEvent，在其他UI线程可以接收
+UserGiveGiftNotifyEvent事件的地方即可执动画播放任务。
+
+最后，在进入直播间时，初始化RevGifQueue，在推出直播间时，release掉RevGifQueue，整个流程就基本搞定了。
