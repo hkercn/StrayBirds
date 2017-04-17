@@ -33,7 +33,7 @@ comments: false
 ### 3. 客户端实现大量密集型送礼动画的队列展示处理   ###
   
   构建一个动画展示任务队列的单例工具类RevGifQueue，内部定义一个接收到的送礼通知消息队列缓冲区。
-  
+   
   ```java
   
   LinkedBlockingQueue<UserGiveGiftNotify> giftNotifyQueue;
