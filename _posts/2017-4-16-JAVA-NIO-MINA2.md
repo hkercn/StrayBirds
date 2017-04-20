@@ -7,6 +7,8 @@ comments: false
 
 ## 基础知识 ##
 
+关于NIO的基础理论知识，推荐 [Java NIO: Non-blocking Server非阻塞服务器](https://java-nio.avenwu.net/java-nio-non-blocking-server.html)
+
 关于mina2的基础理论知识，推荐waylau童鞋翻译的 [Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
 
 ## 应用总结 ##
