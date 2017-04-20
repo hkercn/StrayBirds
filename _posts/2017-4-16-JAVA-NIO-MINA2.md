@@ -7,7 +7,7 @@ comments: false
 
 ## 基础知识 ##
 
-关于mina2的基础理论知识，推荐waylau童鞋翻译的![Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
+关于mina2的基础理论知识，推荐waylau童鞋翻译的 ![Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
 
 ## 应用总结 ##
 
@@ -286,11 +286,11 @@ TlvUtil类则是Tlv协议的基础操作工具类，包含了对Tlv协议的初�
 
 #### 1. 什么是Tlv协议? ####
 
-   ![自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
+   [自定义通信协议设计之TLV编码应用](https://my.oschina.net/maxid/blog/206546)
 
-   ![类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
+   [类型-长度-值（TLV）协议](http://wizmann.tk/tlv-protocol.html)
 
-   ![TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
+   [TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
    
    
 #### 2. 自实现Tlv协议综述 ####
