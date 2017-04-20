@@ -294,13 +294,328 @@ TlvUtil类则是Tlv协议的基础操作工具类，包含了对Tlv协议的初�
 
    [TLV编码通信协议设计](http://www.wtango.com/tlv%E7%BC%96%E7%A0%81%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1/)
    
+#### 2.相关知识点 ####
+
+   [Java中的Type详解](http://loveshisong.cn/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/2016-02-16-Type%E8%AF%A6%E8%A7%A3.html)
    
-#### 2. 自实现Tlv协议综述 ####
+#### 3. 自实现Tlv协议综述 ####
 
 "协议一般由一个或多个消息组成，简单的来说，消息就像是一个Table，由表头(消息的字段定义，包括名称与数据类型)与行(字段值)组成"
 
 协议的超类Tlvable是一个空实现的接口，消息对象TlvSignal和消息头TlvAccessHeader实现自Tlvable。
 
+为了更清晰的解读Tlv编码协议的封装使用，我们这里以逆向的思维，先从TlvSignal被编码为字节数组以便于通过MINA2写入会话连接的部分说起。
+
+```java
+
+WriteFuture wf = ioSession.write(TlvCodecUtil.encodeSignal(secretKey.getBytes(), tlvSignal,YayaService.tlvStore2));
+
+```
+
+TlvCodecUtil.encodeSignal方法的实现如下
+
+```java
+
+public static byte[] encodeSignal(byte[] key, TlvSignal tlvSignal,TlvStore tlvStore) {
+	try {
+		byte[] signalData = TlvCodecUtil.encodeTlvSignal(tlvSignal, tlvStore.getTlvFieldMeta(tlvSignal.getClass()), tlvStore);
+		int signalDataLength = (null == signalData ? 0 : signalData.length);
+		tlvSignal.getHeader().setLength(tlvSignal.getHeader().HEADER_LENGTH + signalDataLength);
+		byte[] tlvHeaderData = encodeTlvHeader(tlvSignal.getHeader(), tlvStore);
+		DataEncrypt.encrypt(YayaConstant.ENCRYPT_FLAG, key, signalData, signalData.length);
+		return ArrayUtils.addAll(tlvHeaderData, signalData);
+	} catch (IllegalAccessException e) {
+		e.printStackTrace();
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return null;
+}
+
+```
+
+TlvCodecUtil.encodeTlvSignal方法的实现如下
+
+```java
+
+public static byte[] encodeTlvSignal(Object object, Map<Integer, TlvFieldMeta> fieldMeta, TlvStore tlvStore) throws Exception {
+	if (null == fieldMeta || fieldMeta.size() == 0) {
+		return null;
+	} else {
+		byte[] data = null;
+		for (Map.Entry<Integer, TlvFieldMeta> tlvFieldMetas : fieldMeta.entrySet()) {
+			TlvFieldMeta tlvFieldMeta = tlvFieldMetas.getValue();
+
+			tlvFieldMeta.getField().setAccessible(true);
+			Object fieldValue = tlvFieldMeta.getField().get(object);
+
+			if (null != fieldValue) {
+				if (List.class.isAssignableFrom(tlvFieldMeta.getField().getType())) {
+					List list = (List) fieldValue;
+					for (Object o : list) {
+						byte[] fieldData = (byte[]) tlvFieldMeta.getTransformer().encode(o, tlvFieldMeta, tlvStore);
+						if (null != fieldData) {
+							data = ArrayUtils.addAll(data, fieldData);
+						}
+					}
+				} else {
+					byte[] fieldData = (byte[]) tlvFieldMeta.getTransformer().encode(fieldValue, tlvFieldMeta, tlvStore);
+					if (null != fieldData) {
+						data = ArrayUtils.addAll(data, fieldData);
+					}
+				}
+			}
+		}
+		return data;
+	}
+}
+	
+```
+
+在YayaService#initTlvStore方法中，我们通过调用
+
+```java
+
+TlvUtil.initialTlvStore();
+
+```
+
+TlvUtil.initialTlvStore方法中主要的任务是实例化DefaultTlvStore的实例YayaService#tlvStore2，
+
+```java
+
+
+DefaultTlvStore tlvStore = new DefaultTlvStore();
+tlvStore.addTypeMetaCache(QHKERCNInfo.class);
+
+```
+
+DefaultTlvStore类实现了抽象接口TlvStore，其代码实现如下
+
+```java
+
+public class DefaultTlvStore implements TlvStore {
+    private final String TAG = DefaultTlvStore.class.getSimpleName();
+    private Map<Byte, Map<Integer, Class<? extends Tlvable>>> typeMetaCache = new HashMap<Byte, Map<Integer, Class<? extends Tlvable>>>();
+    private Map<Class, Map<Integer, TlvFieldMeta>> tlvFieldMetaCache = new HashMap<Class, Map<Integer, TlvFieldMeta>>();
+    private Map<Class, SortedSet<TlvHeaderFieldMeta>> tlvHeaderFieldMetaCache = new HashMap<Class, SortedSet<TlvHeaderFieldMeta>>();
+
+    public int getStoreSize(){
+        return  typeMetaCache.size();
+    }
+
+    public DefaultTlvStore() throws Exception {
+        initialRegisterTlvHeaderFieldMeta();
+    }
+
+    public void initialRegisterTlvHeaderFieldMeta() throws Exception {
+        registerTlvHeaderFieldMeta(TlvAccessHeader.class);
+    }
+
+    /**
+     * 注册Tlv编码协议的协议头字段元信息
+     * @param type 协议头字段的定义类
+     * @throws Exception
+     */
+    public void registerTlvHeaderFieldMeta(Class type) throws Exception {
+        SortedSet<TlvHeaderFieldMeta> tlvFieldMetas = new TreeSet<TlvHeaderFieldMeta>();
+        //获取所有Class中定义的字段
+        Field[] fields = type.getDeclaredFields();
+        for (Field field : fields) {
+            //如果该字段上声明了TlvHeaderField注解
+            if (field.isAnnotationPresent(TlvHeaderField.class)) {
+                TlvHeaderField tlvHeaderField = field.getAnnotation(TlvHeaderField.class);
+                TlvHeaderFieldMeta tlvFieldMeta = new TlvHeaderFieldMeta();
+                //获取注解中指定的unsinged、index、type等字段值
+                tlvFieldMeta.setUnsigned(tlvHeaderField.unsigned());
+                tlvFieldMeta.setIndex(tlvHeaderField.index());
+                tlvFieldMeta.setConvertor(ConvertorFactory.build(field.getType()));
+                tlvFieldMeta.setField(field);
+
+                tlvFieldMetas.add(tlvFieldMeta);
+            }
+        }
+
+        if (tlvFieldMetas.size() > 0) {
+            tlvHeaderFieldMetaCache.put(type, tlvFieldMetas);
+        }
+    }
+
+    @Override
+    public Class getTypeMeta(/*int modify by hu 2014.05.12*/byte moduleId, int msgCode) {
+        Map<Integer, Class<? extends Tlvable>> mappers = typeMetaCache.get(moduleId);
+        if (null != mappers) {
+            return mappers.get(msgCode);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Map<Integer, TlvFieldMeta> getTlvFieldMeta(Class type) {
+        return tlvFieldMetaCache.get(type);
+    }
+
+    @Override
+    public SortedSet<TlvHeaderFieldMeta> getTlvHeaderFieldMeta(Class type) {
+        return tlvHeaderFieldMetaCache.get(type);
+    }
+
+
+    private boolean checkSupportFieldType(Field field) throws Exception {
+        Class type = field.getType();
+        if (String.class.isAssignableFrom(type)) {
+            return true;
+        } else if (Byte.class.isAssignableFrom(type) || type.equals(byte.class)) {
+            return true;
+        } else if (Short.class.isAssignableFrom(type) || type.equals(short.class)) {
+            return true;
+        } else if (Character.class.isAssignableFrom(type) || type.equals(char.class)) {
+            return true;
+        } else if (Integer.class.isAssignableFrom(type) || type.equals(int.class)) {
+            return true;
+        } else if (Long.class.isAssignableFrom(type) || type.equals(long.class)) {
+            return true;
+        } else if (Float.class.isAssignableFrom(type) || type.equals(float.class)) {
+            return true;
+        } else if (Double.class.isAssignableFrom(type) || type.equals(double.class)) {
+            return true;
+        } else if (TlvSignal.class.isAssignableFrom(type)) {
+            return true;
+        } else if (List.class.isAssignableFrom(type)) {
+            return true;
+        } else if (type.isArray() && type.getComponentType().equals(byte.class)) {
+            return true;
+        }
+
+        throw new Exception("field isn't support." + field);
+    }
+
+    public void registerTlvFieldMeta(Class<? extends TlvSignal> type) throws Exception {
+        //Log.d(TAG,"registerTlvFieldMeta start");
+        Map<Integer, TlvFieldMeta> tlvFieldMetas = new HashMap<Integer, TlvFieldMeta>();
+        Field[] fields = type.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(TlvSignalField.class)) {
+                checkSupportFieldType(field);
+                TlvSignalField tlvSignalField = field.getAnnotation(TlvSignalField.class);
+                TlvFieldMeta tlvFieldMeta = new TlvFieldMeta();
+                if (List.class.isAssignableFrom(field.getType())) {
+                    Type fc = field.getGenericType();
+                    if (fc instanceof ParameterizedType) {
+                        ParameterizedType pt = (ParameterizedType) fc;
+                        Class genericClass = (Class) pt.getActualTypeArguments()[0]; //generic type
+                        tlvFieldMeta.setTransformer(TransformerFactory.build(genericClass));
+                    } else {
+                        Log.e(TAG, "array list must generic,type:" + type);
+                        throw new Exception("array list must generic.");
+                    }
+                } else {
+                    tlvFieldMeta.setTransformer(TransformerFactory.build(field.getType()));
+                }
+                tlvFieldMeta.setField(field);
+                tlvFieldMeta.setTag(tlvSignalField.tag());
+                tlvFieldMeta.setUnsigned(tlvSignalField.unsigned());
+
+                tlvFieldMetas.put(tlvSignalField.tag(), tlvFieldMeta);
+
+                if (field.getType().isAnnotationPresent(TlvVoMsg.class)) {
+                    registerTlvFieldMeta((Class<? extends TlvSignal>) field.getType());
+                } else if (List.class.isAssignableFrom(field.getType())) {
+                    Type fc = field.getGenericType();
+                    if (fc instanceof ParameterizedType) {
+                        ParameterizedType pt = (ParameterizedType) fc;
+                        Class genericClass = (Class) pt.getActualTypeArguments()[0]; //generic type
+
+                        if (genericClass.isAnnotationPresent(TlvVoMsg.class)) {
+                            if (!tlvFieldMetaCache.containsKey(genericClass)) {
+                                registerTlvFieldMeta((Class<? extends TlvSignal>) genericClass);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (tlvFieldMetas.size() > 0) {
+            tlvFieldMetaCache.put(type, tlvFieldMetas);
+        }
+    }
+
+    public void addTypeMetaCache(Class<? extends Tlvable> type) {
+        try{
+            if (type.isAnnotationPresent(TlvMsg.class)) {
+                TlvMsg tlvMsg = type.getAnnotation(TlvMsg.class);
+                Map<Integer, Class<? extends Tlvable>> mappers = typeMetaCache.get(tlvMsg.moduleId());
+                if (null == mappers) {
+                    mappers = new HashMap<Integer, Class<? extends Tlvable>>();
+                }
+                mappers.put(tlvMsg.msgCode(), type);
+                typeMetaCache.put(tlvMsg.moduleId(), mappers);
+            }
+            if (TlvSignal.class.isAssignableFrom(type)) {
+                registerTlvFieldMeta((Class<? extends TlvSignal>) type);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+
+在DefaultTlvStore构造函数中，注册了Tlv编码协议的协议头字段元信息，并保存在tlvHeaderFieldMetaCache中。其中注解类TlvHeaderField定义如下
+
+```java
+
+/**
+ * @interface 声明TlvHeaderField为注解类
+ * @Retention 声明注解保留到哪个时间段
+ * 	RetentionPolicy.RUNTIME 这种类型的Annotations将被JVM保留,所以他们能在运行时被JVM或其他使用反射机制的代码所读取和使用.
+ *
+ * @Target 指示注释类型所适用的程序元素的种类
+ * 	ElementType.FIELD 指定TlvHeaderField注解类仅限用于定义字段
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = ElementType.FIELD)
+public @interface TlvHeaderField {
+	//定义int类型的index字段
+	int index();
+	//定义Unsigned类型的unsigned字段，默认值为枚举值Unsigned.NONE
+	Unsigned unsigned() default Unsigned.NONE;
+}
+
+```
+
+
+TlvHeaderFieldMeta类 定义相对简单
+
+```java
+
+public class TlvHeaderFieldMeta implements Comparable<TlvHeaderFieldMeta>{
+	private Field field;
+    private int index;
+    private Unsigned unsigned;
+    private Convertor convertor;
+	
+	//getter/setter
+	
+｝
+
+```
+
+DefaultTlvStore#addTypeMetaCache方法用来增加Tlvable子类的元信息定义，该类定义是关键，前后端业务逻辑层面通信，就是通过这里定义的moduleId和msgCode字段，来区分业务逻辑类型的。TlvMsg注解类定义如下
+
+```java
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = ElementType.TYPE)
+public @interface TlvMsg {
+	byte moduleId();
+	int msgCode();
+}
+
+```
 
 
 
