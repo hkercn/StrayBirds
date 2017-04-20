@@ -7,7 +7,7 @@ comments: false
 
 ## 基础知识 ##
 
-关于mina2的基础理论知识，推荐waylau童鞋翻译的 ![Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
+关于mina2的基础理论知识，推荐waylau童鞋翻译的 [Apache MINA 2 用户指南](https://www.gitbook.com/book/waylau/apache-mina-2-user-guide/details).
 
 ## 应用总结 ##
 
