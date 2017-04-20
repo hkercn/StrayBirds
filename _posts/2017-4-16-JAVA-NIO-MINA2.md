@@ -250,7 +250,7 @@ public class YayaService extends Service {
 
 	private void initEvents(){
 		//注册并初始化所有业务逻辑的请求与相应事件-EventBus
-    //code...
+                //code...
 	}
 
 	@Override
@@ -617,5 +617,15 @@ public @interface TlvMsg {
 
 ```
 
+另外一个使用到的注解类TlvVoMsg是一个空实现
 
+```java
 
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = ElementType.TYPE)
+public @interface TlvVoMsg {
+}
+
+```
+
+至此，通过DefaultTlvStore的构造函数及一些列addTypeMetaCache函数的调用，便完成了DefaultTlvStore实例的初始化操作，所有的业务逻辑model的字段等定义信息也全部得以保存在DefaultTlvStore对应的Map集合字段之中。
