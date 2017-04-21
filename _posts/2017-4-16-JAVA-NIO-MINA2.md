@@ -16,6 +16,7 @@ comments: false
 ### 客户端基本配置 ###
 
 #### 会话连接的配置与创建 ####
+
 ```java
 
 //创建TCP客户端连接器
@@ -673,7 +674,7 @@ TlvUtil.buildHeader主要是构建生成一个TlvAccessHeader实例对象，TlvA
 ```java
 
 TlvAccessHeader{
-	headLength;
+	HEADER_LENGTH=10;
 	moudleId;
 	msgId;
 	messageId;
