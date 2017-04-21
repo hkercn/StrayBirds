@@ -316,8 +316,16 @@ TlvCodecUtil.encodeSignal方法的实现如下
 
 ```java
 
+/**
+ * 将tlvSignal数据对象解码为byte[]
+ * @param key 服务器在会话连接建立之初响应的secretKey
+ * @param tlvSignal 待编码的TlvSignal
+ * @param tlvStore 存储所有业务逻辑层面上用到的req/resp/model 类的字段定义信息
+ * @return 返回编码后的字节数组
+ */
 public static byte[] encodeSignal(byte[] key, TlvSignal tlvSignal,TlvStore tlvStore) {
 	try {
+		//首先编码字段元信息
 		byte[] signalData = TlvCodecUtil.encodeTlvSignal(tlvSignal, tlvStore.getTlvFieldMeta(tlvSignal.getClass()), tlvStore);
 		int signalDataLength = (null == signalData ? 0 : signalData.length);
 		tlvSignal.getHeader().setLength(tlvSignal.getHeader().HEADER_LENGTH + signalDataLength);
@@ -345,10 +353,8 @@ public static byte[] encodeTlvSignal(Object object, Map<Integer, TlvFieldMeta> f
 		byte[] data = null;
 		for (Map.Entry<Integer, TlvFieldMeta> tlvFieldMetas : fieldMeta.entrySet()) {
 			TlvFieldMeta tlvFieldMeta = tlvFieldMetas.getValue();
-
 			tlvFieldMeta.getField().setAccessible(true);
 			Object fieldValue = tlvFieldMeta.getField().get(object);
-
 			if (null != fieldValue) {
 				if (List.class.isAssignableFrom(tlvFieldMeta.getField().getType())) {
 					List list = (List) fieldValue;
@@ -491,8 +497,12 @@ public class DefaultTlvStore implements TlvStore {
         throw new Exception("field isn't support." + field);
     }
 
+    /**
+     * 注册协议字段元信息
+     * @param type
+     * @throws Exception
+     */
     public void registerTlvFieldMeta(Class<? extends TlvSignal> type) throws Exception {
-        //Log.d(TAG,"registerTlvFieldMeta start");
         Map<Integer, TlvFieldMeta> tlvFieldMetas = new HashMap<Integer, TlvFieldMeta>();
         Field[] fields = type.getDeclaredFields();
         for (Field field : fields) {
@@ -501,13 +511,16 @@ public class DefaultTlvStore implements TlvStore {
                 TlvSignalField tlvSignalField = field.getAnnotation(TlvSignalField.class);
                 TlvFieldMeta tlvFieldMeta = new TlvFieldMeta();
                 if (List.class.isAssignableFrom(field.getType())) {
-                    Type fc = field.getGenericType();
+                    //获取field字段的直接超类的type
+                    Type fc = field.getGenericType();//java.util.List
+                    //ParameterizedType表示一种参数化的类型，比如Collection
                     if (fc instanceof ParameterizedType) {
                         ParameterizedType pt = (ParameterizedType) fc;
+                        //List<String>中的String
                         Class genericClass = (Class) pt.getActualTypeArguments()[0]; //generic type
                         tlvFieldMeta.setTransformer(TransformerFactory.build(genericClass));
                     } else {
-                        Log.e(TAG, "array list must generic,type:" + type);
+                        Log.e(TAG, "array list must generic type:" + type);
                         throw new Exception("array list must generic.");
                     }
                 } else {
@@ -526,7 +539,7 @@ public class DefaultTlvStore implements TlvStore {
                     if (fc instanceof ParameterizedType) {
                         ParameterizedType pt = (ParameterizedType) fc;
                         Class genericClass = (Class) pt.getActualTypeArguments()[0]; //generic type
-
+                        //如果字段类型为List，且元素的实际类型定义上有TlvVoMsg注解
                         if (genericClass.isAnnotationPresent(TlvVoMsg.class)) {
                             if (!tlvFieldMetaCache.containsKey(genericClass)) {
                                 registerTlvFieldMeta((Class<? extends TlvSignal>) genericClass);
@@ -544,6 +557,7 @@ public class DefaultTlvStore implements TlvStore {
 
     public void addTypeMetaCache(Class<? extends Tlvable> type) {
         try{
+            //类type的定义上是否有声明注解TlvMsg
             if (type.isAnnotationPresent(TlvMsg.class)) {
                 TlvMsg tlvMsg = type.getAnnotation(TlvMsg.class);
                 Map<Integer, Class<? extends Tlvable>> mappers = typeMetaCache.get(tlvMsg.moduleId());
@@ -604,7 +618,7 @@ public class TlvHeaderFieldMeta implements Comparable<TlvHeaderFieldMeta>{
 
 ```
 
-DefaultTlvStore#addTypeMetaCache方法用来增加Tlvable子类的元信息定义，该类定义是关键，前后端业务逻辑层面通信，就是通过这里定义的moduleId和msgCode字段，来区分业务逻辑类型的。TlvMsg注解类定义如下
+DefaultTlvStore#addTypeMetaCache方法用来增加Tlvable子类的元信息定义, TlvMsg注解类定义是关键，前后端业务逻辑层面通信，就是通过这里定义的moduleId和msgCode字段，来区分业务逻辑类型的。TlvMsg注解类定义如下
 
 ```java
 
@@ -617,7 +631,7 @@ public @interface TlvMsg {
 
 ```
 
-另外一个使用到的注解类TlvVoMsg是一个空实现
+另外一个使用到的注解类TlvVoMsg是一个空实现，主要用于对业务req/resp中涉及到的一些基本数据model的定义声明。
 
 ```java
 
@@ -629,3 +643,65 @@ public @interface TlvVoMsg {
 ```
 
 至此，通过DefaultTlvStore的构造函数及一些列addTypeMetaCache函数的调用，便完成了DefaultTlvStore实例的初始化操作，所有的业务逻辑model的字段等定义信息也全部得以保存在DefaultTlvStore对应的Map集合字段之中。
+
+在生成Req业务请求对象时，需要设置各自对应的请求参数值以及相应的tlv协议头信息。而根据不用的场景和业务需求，Req/Resp/MODEL的定义分为如下2种情况：
+
+1.直接以该Req/Resp进行数据通信（读写）时对应的定义格式
+
+```java
+
+@TlvMsg(moduleId = ProxyEsbType.ACCESS_GIFT_MODULE_TAG, msgCode = 0x0018)
+public class LoginReq extends TlvSignal {
+//...
+}
+
+```
+
+此时，在生成该Req实例时，通过如下代码完成协议头的封装。
+
+```java
+
+LoginReq req = new LoginReq();
+req.setAppId(appId);
+//...
+req.setHeader(TlvUtil.buildHeader(seqNum, TlvUtil.getModuleId(req),TlvUtil.getMsgCode(req)));
+
+```
+
+TlvUtil.buildHeader主要是构建生成一个TlvAccessHeader实例对象，TlvAccessHeader定义描述如下
+
+```java
+
+TlvAccessHeader{
+	headLength;
+	moudleId;
+	msgId;
+	messageId;
+	version;
+	esbAddr;
+}
+
+```
+
+2.其他的未在类定义上方声明@TlvMsg注解的Req/Resp/InfoModel,则需要通过再次封装成ProxyEsbReq/ProxyEsbResp来执行数据的读写操作。
+
+```java
+
+ProxyEsbReq{
+	msgId;
+	moudleId;
+	uuid;
+	data;
+}
+
+```
+
+data是一个字节数组的变量，存储TlvSignal编码后字节数据，真正调用的编码函数则还是
+
+```java
+
+//首先编码字段元信息
+byte[] signalData = TlvCodecUtil.encodeTlvSignal(tlvSignal, tlvStore.getTlvFieldMeta(tlvSignal.getClass()), tlvStore);
+
+```
+
