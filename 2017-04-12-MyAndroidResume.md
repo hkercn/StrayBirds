@@ -11,16 +11,64 @@
  - 魏海涛/男/1990 
  - 本科/中南林业科技大学/软件工程专业 
  - 英语：CET-4
- - 工作年限：3年
+ - 工作年限：4年
  - 技术博客: https://hkercn.github.io/blog/ 
  - GitHub: https://github.com/hkercn
- - 意向：Android中级程序员/税前月薪10-11k/广州
+ - 意向：Android中级程序员/税前月薪14-15k/广州
 
 ---
 
 # 工作经历
 
-## 广州游莱信息科技有限公司（ 2016年5月 ~ 至今 ）
+## 讯汇科技（广州）有限公司（2017年5月~ 至今）
+
+### QpidDating
+
+公司主打产品，男士客户端App
+
+负责内嵌直播模块的如下业务功能：
+
+1.模块首页（UI框架搭建、Hot/Following列表数据刷新展示）
+2.直播间过渡页（进入公开直播间、邀请/预约/应邀私密直播、直播间切换、权限检测）
+3.四类直播间（UI框架搭建、换肤）
+4.直播间送礼（连击/大礼物队列播放、列表展示、礼物数据同步）
+5.直播间消息（消息列表、弹幕/入场座驾动画队列播放、收发文本/礼物消息）
+6.直播间推拉流（推拉流对接及管理、推流控件拖拽）
+7.直播间表情（表情的列表展示与同步配置、表情文本混合显示）
+8.直播间内的其他业务功能
+
+技术贡献：
+
+1.实现几大业务功能对应的通用控件（礼物/弹幕/入场座驾动画播放控件、表情列表控件、tab控件、头像列表控件、h5页面webview展示控件等），队列/数据配置同步管理器，以便于移植开发后续的多人互动app（男士/女士端）、主播端App（女士端）
+
+### 男士端独立App
+
+为QN内嵌直播模块独立出来的一款产品，已暂停维护
+
+移植直播模块相关业务功能的同时，另负责：
+
+1.注册/登录模块（facebook、手机短信、邮箱）
+2.分享（facebook等）
+
+技术贡献：
+1.实现国家码选择控件、可扩展第三方分享管理器、权限检测管理器。
+
+### 主播端独立App
+
+对应于男士端的女士端App
+
+移植上述所有相关功能的同时，另负责：
+
+1.开播页（视频预览、权限检测）
+1.HangOut直播间过渡页（应邀进入、直播间切换）
+2.HangOut直播间（UI框架搭建、多人视频窗口的状态管理、直播间消息维护、吧台礼物动画播放与列表展示、多人视频推拉流的对接与管理）
+
+技术贡献：
+1.完善礼物动画播放器，支持播放静态图片和webp动画；
+2.封装多人互动直播间视频窗口组件，以开放接口形式供外部控制窗口状态的切换（如插入礼物动画消息、控制推拉流开关等）；
+3.封装直播间文本/礼物消息分发管理器、视频流推/播管理器。
+
+## 广州游莱信息科技有限公司（ 2016年5月 ~ 2017年4月 ）
 
 ### LiveTver
 
@@ -28,7 +76,7 @@
 
 我的职责：
 
-1. 注册/登录模块(短信验证码/wechat/facebook等方式的注册、登录与绑定)
+1. 注册/登录模块（短信验证码/wechat/facebook等方式的注册、登录与绑定）
 2. 积分商城、支付（GooglePlay IAB、Halopay、XSOLLA、MOL、UNIPIN）
 3. 埋点统计（百度移动统计SDK、Appflyer、Facebook、WingSDK）
 4. PC直播间拉流(aac编解码)
@@ -142,7 +190,7 @@
 - 数据库：    MySQL/SQLite3
 - 版本管理、文档和自动化部署工具：Svn/Git/Grade/Quip/Jenkins
 - 单元测试：JUnit 4
-- 开源库：Gson/Blurry/butterknife/leakcanary/BlockCanary/Eventbus/ImageLoader
+- 开源库/组件：Gson/Blurry/butterknife/leakcanary/BlockCanary/Eventbus/ImageLoader/Picasso/Fresco/FileDownLoader/TabIndicatior/RecycleView/BadgeView/SmartRefreshLayout/ConstraintLayout等
 - 云和开放平台：WingSDK/Firebase/Appflyer/Facebook/GooglePlay Developer Console/微信开放平台/百度移动统计平台/Bugly/蒲公英/腾讯云服务平台
 
 ---
